@@ -5,7 +5,6 @@ import com.training.categoryweb.service.CategoryService;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
-import java.awt.*;
 import java.util.List;
 
 @RestController
@@ -31,7 +30,7 @@ public class categoryController {
             method = RequestMethod.GET,
             produces =  MediaType.APPLICATION_JSON_VALUE
     )
-    public Category findById(@PathVariable("idCategory") String id){
+    public Category findById(@PathVariable("idCategory") Long id){
         return categoryService.findById(id);
     }
 
@@ -60,7 +59,7 @@ public class categoryController {
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    public Category delete (@PathVariable("idCategory") String id){
+    public Category delete (@PathVariable("idCategory") Long id){
         return categoryService.delete(id);
     }
 }
