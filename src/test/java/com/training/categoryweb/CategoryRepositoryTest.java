@@ -26,13 +26,13 @@ public class CategoryRepositoryTest {
     }
     @Test
     public void testFindById(){
-        Optional<Category> byId = categoryRepository.findById(2L);
-        Assert.assertFalse("harusnya id 2 ga ada", byId.isPresent());
         Category category1 = new Category();
         category1.setName("fashion");
         Category temp = categoryRepository.save(category1);
         Optional<Category> byId1 = categoryRepository.findById(temp.getCategoryID());
         Assert.assertTrue("category dgn id 1 hrs ada", byId1.isPresent());
+        Optional<Category> byId = categoryRepository.findById(temp.getCategoryID()+1);
+        Assert.assertFalse("harusnya id 2 ga ada", byId.isPresent());
     }
 
     @Test
@@ -47,21 +47,6 @@ public class CategoryRepositoryTest {
     }
 
     @Test
-    public void categoryUpdateMustReturnUpdatedObjectAndSameID() {
-        Category firstCategory = new Category();
-        firstCategory.setName("Baking");
-
-        Category getFirst = categoryRepository.save(firstCategory);
-
-        Category secondCategory = new Category();
-        secondCategory.setName("Fashion");
-        secondCategory.setCategoryID(getFirst.getCategoryID());
-
-        Category returnCategory = categoryRepository.save(secondCategory);
-
-        Assert.assertTrue("ID Should Be The Same",getFirst.getCategoryID() == returnCategory.getCategoryID());
-    }
-
     public void testFindAll(){
         Category fashion = new Category();
         fashion.setName("Fashion");
@@ -87,14 +72,14 @@ public class CategoryRepositoryTest {
         fashion.setName("Vehicle");
         Category cooking = new Category();
         electronic.setName("Cooking");
-        categoryRepository.save(fashion);
-        categoryRepository.save(electronic);
-        categoryRepository.save(vehicle);
-        categoryRepository.save(cooking);
+        Category create =  categoryRepository.save(fashion);
+        Category create2 = categoryRepository.save(electronic);
+        Category create3 = categoryRepository.save(vehicle);
+        Category create4 = categoryRepository.save(cooking);
 
-        categoryRepository.delete(cooking);
-        Assert.assertTrue("total kategori harus 3", categoryRepository.findAll().size()==3);
-        //categoryRepository.deleteById(cooking.getCategoryID());
+        categoryRepository.deleteById(create2.getCategoryID());
+        Assert.assertFalse("harusnya skrg id dari creat2 udh gaada",
+                categoryRepository.existsById(create2.getCategoryID()));
     }
 
 }
