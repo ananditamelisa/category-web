@@ -3,20 +3,20 @@ package com.training.categoryweb;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-@Table (name = "categories")
+@Document(collection = "categories")
 public class Category {
+    @NotNull
     @Id
-    @Column(name="id")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long categoryID;
-
-    @Column(name="name")
+    @NotBlank(message = "NotBlank")
     private String name;
 }

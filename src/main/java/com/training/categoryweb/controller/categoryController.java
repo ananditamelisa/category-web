@@ -2,17 +2,26 @@ package com.training.categoryweb.controller;
 
 import com.training.categoryweb.Category;
 import com.training.categoryweb.service.CategoryService;
+import com.training.categoryweb.validation.ValidationHelper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
 
 @RestController
 public class categoryController {
     private CategoryService categoryService;
+    private ValidationHelper validationHelper;
 
-    public categoryController(CategoryService categoryService) {
+    @Autowired
+    public categoryController(CategoryService categoryService, ValidationHelper validationHelper) {
         this.categoryService = categoryService;
+        this.validationHelper = validationHelper;
     }
 
     @RequestMapping(
@@ -21,8 +30,10 @@ public class categoryController {
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    public Category create(@RequestBody Category category){
-        return categoryService.create(category);
+    public Mono<Category> create(@RequestBody Category category){
+        return validationHelper.validate(category)
+                .flatMap(data->categoryService.create(data))
+                .subscribeOn(Schedulers.elastic());
     }
 
     @RequestMapping(
@@ -30,8 +41,9 @@ public class categoryController {
             method = RequestMethod.GET,
             produces =  MediaType.APPLICATION_JSON_VALUE
     )
-    public Category findById(@PathVariable("idCategory") Long id){
-        return categoryService.findById(id);
+    public Mono<Category> findById(@PathVariable("idCategory") Long id){
+
+        return categoryService.findById(id).subscribeOn(Schedulers.elastic());
     }
 
     @RequestMapping(
@@ -39,18 +51,19 @@ public class categoryController {
             method =  RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public List<Category> findAll(){
-        return categoryService.findAll();
+    public Flux<Category> findAll(){
+        return categoryService.findAll().subscribeOn(Schedulers.elastic());
     }
 
     @RequestMapping(
-            value = "/categories/update",
+            value = "/categories/update/{idCategory}",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    public Category update(@RequestBody  Category category){
-        return categoryService.update(category);
+    public Mono<Category> update(@RequestBody  Category category, @PathVariable("idProduct") Long id){
+
+        return categoryService.update(category, id).subscribeOn(Schedulers.elastic());
     }
 
     @RequestMapping(
@@ -59,7 +72,8 @@ public class categoryController {
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    public Category delete (@PathVariable("idCategory") Long id){
-        return categoryService.delete(id);
+    public Mono<Category> delete (@PathVariable("idCategory") Long id){
+
+        return categoryService.delete(id).subscribeOn(Schedulers.elastic());
     }
 }

@@ -5,56 +5,44 @@ import com.training.categoryweb.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
-    @Autowired (required = true)
     private CategoryRepository categoryRepository;
 
+    @Autowired
+    public CategoryServiceImpl(CategoryRepository categoryRepository) {
+        this.categoryRepository = categoryRepository;
+    }
+
     @Override
-    public Category create(Category category) {
+    public Mono<Category> create(Category category) {
         return categoryRepository.save(category);
     }
 
     @Override
-    public Category findById(Long id) {
-        Optional<Category> idCategory = categoryRepository.findById(id);
-        Category temp;
-        if(idCategory.isPresent()){
-            temp = idCategory.get();
-            return temp;
-        }else{
-            return null;
-        }
-    }
-
-    @Override
-    public List<Category> findAll() {
+    public Flux<Category> findAll() {
         return categoryRepository.findAll();
     }
 
     @Override
-    public Category update(Category category) {
-        Optional<Category> byId = categoryRepository.findById(category.getCategoryID());
-        if(byId.isPresent()){
-            return categoryRepository.save(category);
-        }else{
-            return null;
-        }
+    public Mono<Category> findById(Long id) {
+        return categoryRepository.findById(id);
     }
 
     @Override
-    public Category delete(Long id) {
-        Optional<Category> byId = categoryRepository.findById(id);
-        if(byId.isPresent()){
-            Category c = byId.get();
-            categoryRepository.deleteById(id);
-            return c;
-        }else{
-            return null;
-        }
+    public Mono<Category> update(Category category, Long id) {
+        return categoryRepository.findById(id)
+                .map(value->new Category(value.getCategoryID(), category.getName()))
+                .flatMap(value-> categoryRepository.save(value).thenReturn(value));
+    }
+
+    @Override
+    public Mono<Category> delete(Long id) {
+        return categoryRepository.findById(id)
+                .flatMap(value-> categoryRepository.deleteById(id).thenReturn(value));
     }
 }
